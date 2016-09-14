@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "morleydev-co-ukblog",
+    "staging": "morleydev-co-ukblog"
+  }
+}

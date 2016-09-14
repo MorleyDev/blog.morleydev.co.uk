@@ -1,0 +1,23 @@
+$md-green: #5cb85c;
+$md-light-green: lighten($md-green, 6.5%);
+$md-dark-green:  darken($md-green, 6.5%);
+
+$md-yellow: #f0ad4e;
+$md-light-yellow: lighten($md-yellow, 6.5%);
+$md-dark-yellow:  darken($md-yellow, 6.5%);
+
+$md-red: #d9534f;
+$md-light-red: lighten($md-red, 6.5%);
+$md-dark-red:  darken($md-red, 6.5%);
+
+$md-blue:  #428bca;
+$md-light-blue: lighten($md-blue, 6.5%);
+$md-dark-blue:  darken($md-blue, 6.5%);
+
+$md-white: #ffffff;
+$md-black: #000000;
+$md-gray-darker: lighten($md-black, 13.5%);
+$md-gray-dark: lighten($md-black, 20%);
+$md-gray: lighten($md-black, 33.5%);
+$md-gray-light: lighten($md-black, 46.7%);
+$md-gray-lighter: lighten($md-black, 93.5%);

@@ -1,0 +1,15 @@
+body {
+	opacity: 0;
+	animation: -body-kf-loading-fade-in 1s 1s ease-in;
+	animation-delay: 1s;
+	animation-fill-mode: forwards;
+}
+
+@keyframes -body-kf-loading-fade-in {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
