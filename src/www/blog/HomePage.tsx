@@ -1,4 +1,3 @@
-import { Routing } from "./routing";
 import { List } from "immutable";
 import * as React from "react";
 import { connect } from "react-redux";
@@ -8,7 +7,8 @@ import { Observable } from "rxjs/Observable";
 
 import { AppAction } from "../app-action.model";
 import { AppState } from "../app-state.model";
-import { BlogPostSummary } from "./summary/index";
+import { Routing } from "./routing";
+import { BlogLoadSummariesAction, BlogPostSummary } from "./summary/index";
 
 export type HomePageState = {
 	readonly summaries: {
@@ -37,7 +37,7 @@ export const homePageReducer = (state: AppState, action: AppAction): AppState =>
 		return state;
 	}
 	switch (action.type) {
-		case "Blog@@LoadSummaries":
+		case BlogLoadSummariesAction:
 			return {
 				...state,
 				home: {
@@ -59,7 +59,7 @@ export const homePageEpic = (action$: Observable<AnyAction>): Observable<AnyActi
 		.filter(action => action.type === LOCATION_CHANGE)
 		.filter((action: LocationChangeAction) => action.payload.pathname === Routing.HomePage)
 		.map(() => ({
-			type: "Blog@@LoadSummaries",
+			type: BlogLoadSummariesAction,
 			amount: 10,
 			onLoad: (state: AppState, summary: BlogPostSummary) => {
 				return ({

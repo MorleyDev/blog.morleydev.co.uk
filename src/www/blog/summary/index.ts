@@ -19,12 +19,14 @@ export type BlogLoadSummariesAction = {
 	amount: number;
 	onLoad: (state: AppState, summary: BlogPostSummary) => AppState;
 };
+export const BlogLoadSummariesAction = "Blog@@LoadSummaries";
 
 export type BlogLoadedSummaryAction = {
 	type: "Blog@@LoadSummaries@@Loaded",
 	summary: BlogPostSummary;
 	onLoad: (state: AppState, summary: BlogPostSummary) => AppState
 };
+export const BlogLoadedSummaryAction = "Blog@@LoadSummaries@@Loaded";
 
 export const blogSummaryEpic = (action$: Observable<AppAction>) =>
 	action$
@@ -43,7 +45,7 @@ export const blogSummaryEpic = (action$: Observable<AppAction>) =>
 
 export const summaryLoadingReducer = (state: AppState, action: AppAction): AppState => {
 	switch (action.type) {
-		case "Blog@@LoadSummaries@@Loaded":
+		case BlogLoadedSummaryAction:
 			return action.onLoad(state, action.summary);
 	}
 	return state;
