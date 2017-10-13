@@ -1,6 +1,8 @@
+import { Routing } from "./routing";
 import { List } from "immutable";
 import * as React from "react";
 import { connect } from "react-redux";
+import { LOCATION_CHANGE, LocationChangeAction } from "react-router-redux";
 import { AnyAction } from "redux";
 import { Observable } from "rxjs/Observable";
 
@@ -47,14 +49,15 @@ export const homePageReducer = (state: AppState, action: AppAction): AppState =>
 					}
 				}
 			};
-		default: return state;
+		default:
+			return state;
 	}
 };
 
-export const onViewHomePage = (action$: Observable<AnyAction>): Observable<AnyAction> =>
+export const homePageEpic = (action$: Observable<AnyAction>): Observable<AnyAction> =>
 	action$
-		.filter(action => action.type === "@@router/LOCATION_CHANGE")
-		.filter(action => action.payload.pathname === "/")
+		.filter(action => action.type === LOCATION_CHANGE)
+		.filter((action: LocationChangeAction) => action.payload.pathname === Routing.HomePage)
 		.map(() => ({
 			type: "Blog@@LoadSummaries",
 			amount: 10,

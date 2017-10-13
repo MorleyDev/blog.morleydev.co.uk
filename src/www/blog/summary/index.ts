@@ -26,7 +26,7 @@ export type BlogLoadedSummaryAction = {
 	onLoad: (state: AppState, summary: BlogPostSummary) => AppState
 };
 
-export const summaryLoadingEpic = (action$: Observable<AppAction>) =>
+export const blogSummaryEpic = (action$: Observable<AppAction>) =>
 	action$
 		.filter(action => action.type === "Blog@@LoadSummaries")
 		.switchMap((action: BlogLoadSummariesAction) => from([{
