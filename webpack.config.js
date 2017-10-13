@@ -1,4 +1,4 @@
-const webpack = require('webpack');
+const { DefinePlugin, ...webpack } = require('webpack');
 const ClosureCompilerPlugin = require('webpack-closure-compiler');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
@@ -38,7 +38,10 @@ module.exports = {
       template: "./src/www/index.html"
     })
   ].concat((isProductionBuild
-    ? [new ClosureCompilerPlugin({ jsCompiler: true, compiler: { warning_level: "QUIET" } })]
+    ? [
+        new ClosureCompilerPlugin({ jsCompiler: true, compiler: { warning_level: "QUIET" } }),
+        new DefinePlugin({ 'process.env':{ 'NODE_ENV': JSON.stringify('production') } }),
+      ]
     : [
       new webpack.HotModuleReplacementPlugin(),
       new webpack.NamedModulesPlugin()

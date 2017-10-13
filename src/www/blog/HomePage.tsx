@@ -1,4 +1,5 @@
 import { List } from "immutable";
+import { LinearProgress } from "material-ui";
 import * as React from "react";
 import { connect } from "react-redux";
 import { LOCATION_CHANGE, LocationChangeAction } from "react-router-redux";
@@ -17,10 +18,9 @@ export type HomePageState = {
 	}
 };
 
-
 export const HomePage = (homePage: HomePageState) => (
 	homePage.summaries.loading
-		? <div>Loading</div>
+		? <LinearProgress mode="indeterminate" />
 		: <div>{homePage.summaries.data.map(summary => (
 			<div key={summary.id}>
 				<h2>{summary.title}</h2>
