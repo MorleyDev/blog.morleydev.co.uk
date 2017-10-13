@@ -1,3 +1,5 @@
 {
-    "typescriptHero.resolver.stringQuoteStyle": "\""
+    "typescriptHero.resolver.stringQuoteStyle": "\"",
+    "editor.renderWhitespace": "all",
+    "editor.insertSpaces": false
 }
