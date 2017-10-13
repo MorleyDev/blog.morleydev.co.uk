@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "alwaysStrict": true,
+        "sourceMap": true,
+        "allowJs": true,
+        "lib": [
+            "es2015",
+            "es2016",
+            "es2017"
+        ]
+    },
+    "exclude": [
+        "webpack.config.js",
+        "dist/**/*"
+    ]
+}

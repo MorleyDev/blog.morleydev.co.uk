@@ -1,18 +1,3 @@
 {
-	"tslint.enable": true,
-	"eslint.enable": true,
-	"puglint.enable": true,
-	"files.exclude": {
-		"**/.git": true,
-		"**/.svn": true,
-		"**/.DS_Store": true,
-		"app/index.js": true,
-		"app/index.js.map": true,
-		"app/index.min.js": true,
-		"app/index.min.js.map": true,
-		"app/jspm_packages": true,
-		"node_modules": true
-	},
-	"editor.insertSpaces": false,
-	"typescript.tsdk": "./node_modules/typescript/lib"
+    "typescriptHero.resolver.stringQuoteStyle": "\""
 }

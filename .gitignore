@@ -1,13 +1,4 @@
-/app/jspm_packages
-/app/typings.json
-/app/typings/
-/app/*.html
-/node_modules
-/app/index.min.js
-/app/index.min.js.map
-/app/index.js
-/app/index.js.map
-
-firebase-debug.log
-npm-debug.log
 .vscode/symbols.json
+node_modules/
+dist/
+*.log
