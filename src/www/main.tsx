@@ -13,7 +13,7 @@ import { initialState } from "./app-state.initial";
 
 injectTapEventPlugin();
 
-const getApp: () => () => JSX.Element = () => require("./App").AppView;
+const getApp: () => () => JSX.Element = () => require("./AppView").AppView;
 
 const getMainReducer = (): (state: any, action: AnyAction) => any => require("./app-reducer.func").mainReducer;
 const createReducer = (appReducer: (state: any, action: AnyAction) => any) => (state: any, action: AnyAction) => appReducer(routerReducer(state, action), action);
@@ -60,7 +60,7 @@ export function main(): void {
 		(module as any).hot.accept("./app-epic.func", () => {
 			epicMiddleware.replaceEpic(getMainEpic());
 		});
-		(module as any).hot.accept("./App", () => {
+		(module as any).hot.accept("./AppView", () => {
 			renderMain();
 		});
 	}

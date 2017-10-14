@@ -1,6 +1,18 @@
 import { readFile } from "fs";
+import { basename } from "path";
+import { Observable } from "rxjs/Observable";
+import { Observer } from "rxjs/Observer";
 
-export function render(filePath: string): Promise<string> {
-	return new Promise((resolve, reject) =>
-		readFile(filePath, { "encoding": "utf8" }, (err, data) => err == null ? resolve(data) : reject(err)));
+export function render(filePath: string): Observable<{ filename: string; data: string }> {
+	return Observable.create((observer: Observer<{ filename: string; data: string }>) => {
+		readFile(filePath, { "encoding": "utf8" }, (err, data) => {
+			if (err == null) {
+				observer.next({
+					filename: basename(filePath),
+					data: data
+				});
+			}
+			observer.complete();
+		});
+	});
 }

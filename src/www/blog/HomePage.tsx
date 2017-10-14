@@ -10,6 +10,7 @@ import { AppAction } from "../app-action.model";
 import { AppState } from "../app-state.model";
 import { Routing } from "./routing";
 import { BlogLoadSummariesAction, BlogPostSummary } from "./summary/index";
+import { Markdown } from "../dom/Markdown";
 
 export type HomePageState = {
 	readonly summaries: {
@@ -25,7 +26,7 @@ export const HomePage = (homePage: HomePageState) => (
 			<div key={summary.id}>
 				<h2>{summary.title}</h2>
 				<sub>{summary.posted.toISOString()} {summary.tags.join(" ")}</sub>
-				<p dangerouslySetInnerHTML={{ __html: summary.text }}></p>
+				<Markdown markdown={summary.text} />
 			</div>
 		))}</div>
 );

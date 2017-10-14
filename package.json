@@ -5,10 +5,12 @@
   "license": "MIT",
   "scripts": {
     "compile:www:dev": "webpack",
+    "compile:www:watch": "webpack --watch",
     "compile:www": "webpack --env.prod",
     "compile:bin": "tsc -p ./src/bin",
     "compile": "tsc -p ./src/bin && webpack --env.prod",
-    "serve": "webpack-dev-server"
+    "serve": "webpack-dev-server",
+    "start": "node ./dist/bin/index.js"
   },
   "devDependencies": {
     "css-loader": "0.28.7",
@@ -28,9 +30,6 @@
   },
   "dependencies": {
     "@types/config": "0.0.33",
-    "@types/koa": "2.0.39",
-    "@types/koa-logger": "2.0.2",
-    "@types/koa-route": "3.2.1",
     "@types/material-ui": "0.18.3",
     "@types/node": "8.0.34",
     "@types/react": "16.0.10",
@@ -42,7 +41,7 @@
     "@types/react-tap-event-plugin": "0.0.30",
     "config": "1.26.2",
     "core-js": "2.5.1",
-    "immutable": "next",
+    "immutable": "4.0.0-rc.7",
     "koa": "2.3.0",
     "koa-logger": "3.1.0",
     "koa-route": "3.2.0",
@@ -50,6 +49,7 @@
     "normalize.css": "7.0.0",
     "react": "16.0.0",
     "react-dom": "16.0.0",
+    "react-markdown": "2.5.0",
     "react-redux": "5.0.6",
     "react-router": "4.2.0",
     "react-router-dom": "4.2.2",

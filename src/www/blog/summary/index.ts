@@ -1,3 +1,4 @@
+import { fromPromise } from "rxjs/observable/fromPromise";
 import { List } from "immutable";
 import { AnyAction } from "redux";
 import { Observable } from "rxjs/Observable";
@@ -28,17 +29,20 @@ export type BlogLoadedSummaryAction = {
 };
 export const BlogLoadedSummaryAction = "Blog@@LoadSummaries@@Loaded";
 
+export const loadBlogSummaries = (amount: number): Observable<BlogPostSummary> =>
+	fromPromise(fetch("/api/blog"))
+		.mergeMap(response => response.json())
+		.mergeMap(response => response.data)
+		.map((data: any) => ({
+			...data,
+			posted: new Date(data.posted)
+		} as BlogPostSummary));
+
 export const blogSummaryEpic = (action$: Observable<AppAction>) =>
 	action$
 		.filter(action => action.type === "Blog@@LoadSummaries")
-		.switchMap((action: BlogLoadSummariesAction) => from([{
-			id: "test-123",
-			title: "Test 123",
-			posted: new Date(),
-			text: "<p>Lorem ipsum dollor set amet</p>",
-			tags: ["test", "blog", "post", "react"]
-		}]).map(post => ({
-			type: "Blog@@LoadSummaries@@Loaded",
+		.switchMap((action: BlogLoadSummariesAction) => loadBlogSummaries(action.amount).map(post => ({
+			type: BlogLoadedSummaryAction,
 			summary: post,
 			onLoad: action.onLoad
 		})));
