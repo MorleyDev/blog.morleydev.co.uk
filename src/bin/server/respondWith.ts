@@ -27,9 +27,8 @@ export const Created = <T = {}>(href: string, data?: T): HttpResponse => {
 export const NoContent = (): HttpResponse => ({ status: 204 });
 
 export interface BadRequestReason { [key: string]: string | BadRequestReason; }
-export type BadRequestValidation = [string, boolean, string];
 
-export const BadRequest = (reason: BadRequestValidation | BadRequestReason): HttpResponse => {
+export const BadRequest = (reason: BadRequestReason): HttpResponse => {
 	const body = JSON.stringify({ reason });
 	return {
 		status: 400,

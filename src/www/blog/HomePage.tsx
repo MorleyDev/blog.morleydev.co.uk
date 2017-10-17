@@ -11,6 +11,7 @@ import { AppState } from "../app-state.model";
 import { Routing } from "./routing";
 import { BlogLoadSummariesAction, BlogPostSummary } from "./summary/index";
 import { Markdown } from "../dom/Markdown";
+import { Summary } from "./summary/Summary";
 
 export type HomePageState = {
 	readonly summaries: {
@@ -23,11 +24,7 @@ export const HomePage = (homePage: HomePageState) => (
 	homePage.summaries.loading
 		? <LinearProgress mode="indeterminate" />
 		: <div>{homePage.summaries.data.map(summary => (
-			<div key={summary.id}>
-				<h2>{summary.title}</h2>
-				<sub>{summary.posted.toISOString()} {summary.tags.join(" ")}</sub>
-				<Markdown markdown={summary.text} />
-			</div>
+			<Summary key={summary.id} summary={summary}></Summary>
 		))}</div>
 );
 

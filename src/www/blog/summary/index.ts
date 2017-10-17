@@ -1,8 +1,6 @@
-import { fromPromise } from "rxjs/observable/fromPromise";
 import { List } from "immutable";
-import { AnyAction } from "redux";
 import { Observable } from "rxjs/Observable";
-import { from } from "rxjs/observable/from";
+import { fromPromise } from "rxjs/observable/fromPromise";
 
 import { AppAction } from "../../app-action.model";
 import { AppState } from "../../app-state.model";
@@ -11,7 +9,7 @@ export type BlogPostSummary = {
 	readonly id: string;
 	readonly title: string;
 	readonly posted: Date;
-	readonly text: string;
+	readonly summary: string;
 	readonly tags: List<string>;
 };
 
@@ -32,11 +30,12 @@ export const BlogLoadedSummaryAction = "Blog@@LoadSummaries@@Loaded";
 export const loadBlogSummaries = (amount: number): Observable<BlogPostSummary> =>
 	fromPromise(fetch("/api/blog"))
 		.mergeMap(response => response.json())
-		.mergeMap(response => response.data)
-		.map((data: any) => ({
+		.mergeMap(response => response.data as { id: string; title: string; posted: string; summary: string; tags: string[]; }[])
+		.map(data => ({
 			...data,
-			posted: new Date(data.posted)
-		} as BlogPostSummary));
+			posted: new Date(data.posted),
+			tags: List(data.tags)
+		}));
 
 export const blogSummaryEpic = (action$: Observable<AppAction>) =>
 	action$

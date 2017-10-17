@@ -1,3 +1,5 @@
+import { Unauthorised } from "../server/respondWith";
+import { Observable } from "rxjs/Rx";
 import { HttpRequest } from "../server/http-request.type";
 import { HttpRequestHandler } from "../server/http-request-handler.type";
 
@@ -16,12 +18,6 @@ export const withAuthentication: (handler: HttpRequestHandler) => HttpRequestHan
 	handler =>
 		request$ =>
 			request$
-				.filter(isAuthenticated)
-				.mergeMap(request => handler(request$));
-
-export const withoutAuthentication: (handler: HttpRequestHandler) => HttpRequestHandler =
-	handler =>
-		request$ =>
-			request$
-				.filter(not(isAuthenticated))
-				.mergeMap(request => handler(request$));
+				.mergeMap(request => isAuthenticated(request)
+					? handler(request$)
+					: Observable.of(Unauthorised()));

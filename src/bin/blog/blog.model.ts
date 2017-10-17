@@ -1,4 +1,5 @@
 export type BlogPostSummary = {
+	id: string;
 	title: string;
 	summary: string;
 	posted: string;

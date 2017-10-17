@@ -21,7 +21,7 @@ export class Sqlite3BlogRepository implements BlogRepository {
 	}
 
 	public search(): Observable<BlogPostSummary> {
-		return this.sqlGet<BlogPostSummary & { tags: string }>(`SELECT title, summary, posted, tags FROM blogposts`, {})
+		return this.sqlGet<BlogPostSummary & { tags: string }>(`SELECT id, title, summary, posted, tags FROM blogposts`, {})
 			.map(summary => ({
 				...summary,
 				tags: summary.tags.split(",")
@@ -71,12 +71,13 @@ export class Sqlite3BlogRepository implements BlogRepository {
 		sql += dto.title ? " title = ?" : "";
 		sql += " WHERE id = $id";
 		await this.sql<{}>((database, observer) => {
-			database.run(sql, [dto.markdown,
+			database.run(sql, [
+				dto.markdown,
 				dto.posted,
 				dto.summary,
 				dto.tags,
 				dto.title
-			], (err) => {
+			].filter(i => i != null), (err) => {
 				if (err) {
 					observer.error(err);
 				} else {
