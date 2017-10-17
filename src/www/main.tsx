@@ -13,13 +13,19 @@ import { initialState } from "./app-state.initial";
 
 injectTapEventPlugin();
 
-const getApp: () => () => JSX.Element = () => require("./AppView").AppView;
+const getMain = (): {
+	AppView: () => JSX.Element,
+	mainReducer: (state: any, action: AnyAction) => any,
+	mainEpic: (action$: Observable<AnyAction>) => Observable<AnyAction>
+} => require("./main-app");
 
-const getMainReducer = (): (state: any, action: AnyAction) => any => require("./app-reducer.func").mainReducer;
+const getApp = () => getMain().AppView;
+
+const getMainReducer = () => getMain().mainReducer;
 const createReducer = (appReducer: (state: any, action: AnyAction) => any) => (state: any, action: AnyAction) => appReducer(routerReducer(state, action), action);
 const getReducer = () => createReducer(getMainReducer());
 
-const getMainEpic = (): (action$: Observable<AnyAction>) => Observable<AnyAction> => require("./app-epic.func").mainEpic;
+const getMainEpic = () => getMain().mainEpic;
 const mainEpic = getMainEpic();
 const epicMiddleware = createEpicMiddleware(combineEpics(mainEpic));
 
@@ -54,13 +60,9 @@ export function main(): void {
 	renderMain();
 
 	if ((module as any).hot) {
-		(module as any).hot.accept("./app-reducer.func", () => {
+		(module as any).hot.accept("./main-app", () => {
 			store.replaceReducer(getReducer());
-		});
-		(module as any).hot.accept("./app-epic.func", () => {
 			epicMiddleware.replaceEpic(getMainEpic());
-		});
-		(module as any).hot.accept("./AppView", () => {
 			renderMain();
 		});
 	}

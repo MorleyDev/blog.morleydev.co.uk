@@ -5,6 +5,8 @@ import { Observer } from "rxjs/Observer";
 
 export function render(filePath: string): Observable<{ filename: string; data: string }> {
 	return Observable.create((observer: Observer<{ filename: string; data: string }>) => {
+		console.log("render", filePath);
+
 		readFile(filePath, { "encoding": "utf8" }, (err, data) => {
 			if (err == null) {
 				observer.next({

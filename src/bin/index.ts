@@ -1,33 +1,22 @@
-import { mimeTypes } from "./server/mime-types";
 import "core-js";
 
-import { List, Map } from "immutable";
-import { join } from "path";
+import "rxjs";
+import { Observable } from "rxjs/Rx";
 
-import { HttpRequestHandler } from "./htp-request-handler.type";
-import { openServer } from "./open-server.func";
-import { render } from "./render";
+import { onBlogApiRequest } from "./blog/http-request-handler.func";
+import { onFileRequest } from "./file-system/http-request-handler.func";
+import { HttpRequestHandler } from "./server/http-request-handler.type";
+import { openServer } from "./server/open-server.func";
 
 const port = 3000;
 
-const getMimeType = (filename: string): string[] => mimeTypes[filename.split(".")[1] || ""] || [];
+const handler: HttpRequestHandler = request$ => Observable.concat(
+	onBlogApiRequest(request$),
+	onFileRequest(request$)
+);
 
-const onFileRequest: HttpRequestHandler = request$ => request$
-	.map(request => (join(__dirname, "../www", request.url || "/")))
-	.mergeMap(targetFile => {
-		return render(targetFile)
-			.concat(render(join(targetFile, "index.html")))
-			.concat(render(join(__dirname, "../www/index.html")))
-			.take(1)
-			.map(({ data, filename }) => ({
-				status: 200,
-				body: data,
-				headers: Map({
-					"Content-Type": List(getMimeType(filename))
-				})
-			}));
-	});
-
-const handler: HttpRequestHandler = request$ => onFileRequest(request$);
-
-openServer(port, handler).subscribe(() => { });
+openServer(port, handler).subscribe(
+	() => { },
+	(err: Error) => console.error(err),
+	() => console.log("...server closed.")
+);
