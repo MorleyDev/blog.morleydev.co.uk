@@ -1,17 +1,15 @@
-import { IncomingMessage } from "http";
+import { HttpRequest } from "../server/http-request.type";
 import { HttpRequestHandler } from "../server/http-request-handler.type";
 
-const getHeaderValue = (request: IncomingMessage, key: string) => {
-	const value = request.headers[key];
+const getHeaderValue = (request: HttpRequest, key: string) => {
+	const value = request.headers.get(key);
 	if (value == null) {
 		return "";
 	}
-	return Array.isArray(value)
-		? value.join(":")
-		: value;
+	return Array.from(value).join(";");
 };
 
-const isAuthenticated = (request: IncomingMessage) => getHeaderValue(request, "Authorization") === "Basic YWRtaW46cGFzc3dvcmQ=";
+const isAuthenticated = (request: HttpRequest) => getHeaderValue(request, "authorization") === "Basic YWRtaW46cGFzc3dvcmQ=";
 const not = <T>(func: (input: T) => boolean): ((input: T) => boolean) => input => !func(input);
 
 export const withAuthentication: (handler: HttpRequestHandler) => HttpRequestHandler =

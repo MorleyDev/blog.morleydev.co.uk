@@ -1,10 +1,12 @@
+import { HttpRequest } from "../server/http-request.type";
+import { HttpResponse } from "../server/http-response.type";
 import { IncomingMessage } from "http";
 import { Observer } from "rxjs/Observer";
 import { Observable } from "rxjs/Rx";
 
 import { withAuthentication, withoutAuthentication } from "../authentication/http-request-handler.func";
 import { HttpRequestHandler } from "../server/http-request-handler.type";
-import { BadRequest, Created, Ok } from "../server/respondWith";
+import { BadRequest, BadRequestReason, Created, Ok, Unauthorised } from "../server/respondWith";
 import { BlogPostDto } from "./blog.model";
 import { Sqlite3BlogRepository } from "./sqlite3-blog-repository";
 
@@ -41,46 +43,47 @@ const onBlogApiCreateRequest: (handler: HttpRequestHandler) => HttpRequestHandle
 				request$.filter(request => /^\/api\/blog\/?$/.test(request.url!) && request.method === "POST")
 			);
 
-const onBlogApiCreateRequestWithAuthentication: HttpRequestHandler = onBlogApiCreateRequest(withAuthentication(
-	request$ => request$
-		.mergeMap(request => readRequest(request).reduce((prev, chunk) => Buffer.concat([prev, chunk])))
-		.map(request => request.toString())
-		.map(request => JSON.parse(request) as Partial<BlogPostDto>)
-		.mergeMap(request => {
-			if (typeof request.id !== "string" || request.id.length === 0) {
-				return Observable.of(BadRequest());
-			}
-			if (typeof request.title !== "string" || request.title.length === 0) {
-				return Observable.of(BadRequest());
-			}
-			if (typeof request.markdown !== "string" || request.markdown.length === 0) {
-				return Observable.of(BadRequest());
-			}
-			if (typeof request.posted !== "string") {
-				return Observable.of(BadRequest());
-			}
-			if (typeof request.summary !== "string" || request.summary.length === 0) {
-				return Observable.of(BadRequest());
-			}
-			if (!Array.isArray(request.tags) || request.tags.some((tag: string) => typeof tag !== "string" || tag.length === 0)) {
-				return Observable.of(BadRequest());
-			}
-			const promise = database.create(request as BlogPostDto).then(() => Created(`/blog/${request.id}`));
-			return Observable.fromPromise(promise);
+
+const validateBlogApiRequest = (handler: HttpRequestHandler): HttpRequestHandler => request$ =>
+	request$
+		.mergeMap(request => request.body.reduce((prev, chunk) => Buffer.concat([prev, chunk])))
+		.map(request => JSON.parse(request.toString()))
+		.map(request => {
+			const canParseDate = (value: string): boolean => !isNaN(Date.parse(value));
+			const resultSet: [string, boolean, string][] = [
+				["id", typeof request.id !== "string" || request.id.trim().length === 0, "id was empty"],
+				["title", typeof request.title !== "string" || request.title.trim().length === 0, "title was empty"],
+				["markdown", typeof request.markdown !== "string" || request.markdown.trim().length === 0, "markdown was empty"],
+				["posted", typeof request.posted !== "string" || !canParseDate(request.posted), "posted was empty or invalid"],
+				["summary", typeof request.summary !== "string" || request.summary.trim().length === 0, "summary was empty"],
+				["tags", !Array.isArray(request.tags) || request.tags.some((tag: string) => typeof tag !== "string" || tag.trim().length === 0), "tags were empty or invalid"]
+			];
+			return resultSet;
 		})
-));
+		.mergeMap(resultSet => !resultSet.some(([_, invalid, __]) => invalid)
+			? handler(request$)
+			: Observable.of(
+				BadRequest(
+					resultSet
+						.filter(([_, invalid, __]) => invalid)
+						.reduce((state, curr) => ({ ...state, [curr[0]]: curr[2] }), {})
+				)
+			));
 
-const onBlogApiCreateRequestWithoutAuthentication: HttpRequestHandler = onBlogApiCreateRequest(withoutAuthentication(
-	request$ => request$
-		.filter(request => /^\/api\/blog\/?$/.test(request.url!) && request.method === "POST")
-		.map(() => ({ status: 401 }))
-));
+const mergeMiddleware = (...handlers: ((handler: HttpRequestHandler) => HttpRequestHandler)[]) =>
+	handlers.reduceRight((handler, curr) => request$ => handler(curr(request$)), (handler: HttpRequestHandler) => handler);
 
-const readRequest = (request: IncomingMessage): Observable<Buffer> => {
-	return Observable.create((observer: Observer<Buffer>) => {
-		request
-			.on("data", (chunk: Buffer) => observer.next(chunk))
-			.on("end", () => observer.complete())
-			.on("error", err => observer.error(err));
-	});
-};
+const onBlogApiCreateRequestWithAuthentication: HttpRequestHandler =
+	mergeMiddleware(onBlogApiCreateRequest, withAuthentication, validateBlogApiRequest)(request$ =>
+		request$.mergeMap(request => request.body.reduce((prev, chunk) => Buffer.concat([prev, chunk])))
+			.map(request => request.toString())
+			.map(request => JSON.parse(request) as BlogPostDto)
+			.mergeMap(request => database.create(request).then(() => Created(`/blog/${request.id}`)))
+	);
+
+const onBlogApiCreateRequestWithoutAuthentication: HttpRequestHandler =
+	mergeMiddleware(onBlogApiCreateRequest, withoutAuthentication)(request$ =>
+		request$
+			.filter(request => /^\/api\/blog\/?$/.test(request.url!) && request.method === "POST")
+			.map(Unauthorised)
+	);
