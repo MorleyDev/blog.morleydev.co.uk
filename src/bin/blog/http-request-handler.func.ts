@@ -1,4 +1,4 @@
-import { bodyToJson, mergeMiddleware } from "../server/utility";
+import { bodyToJson, mergeMiddleware, timed } from "../server/utility";
 import { HttpRequest } from "../server/http-request.type";
 import { HttpResponse } from "../server/http-response.type";
 import { IncomingMessage } from "http";
@@ -24,18 +24,28 @@ export const onBlogApiRequest: HttpRequestHandler =
 		));
 
 const onBlogApiSearchRequest: HttpRequestHandler =
-	request$ => request$
-		.filter(request => /^\/api\/blog\/?$/.test(request.url) && request.method === "GET")
-		.mergeMap(() => database.search().toArray())
-		.map(data => ({ data }))
-		.map(Ok);
+	mergeMiddleware(
+		handler => request$ => request$
+			.filter(request => /^\/api\/blog\/?$/.test(request.url) && request.method === "GET")
+			.mergeMap(() => handler(request$)),
+		timed("blog.morleydev.co.uk,api=SearchBlogPosts")
+	)(
+		request$ => request$
+			.mergeMap(() => database.search().toArray())
+			.map(data => ({ data }))
+			.map(Ok)
+		);
 
 const onBlogApiGetByIdRequest: HttpRequestHandler =
-	request$ => request$
-		.filter(request => /^\/api\/blog\/(.+)\/?$/.test(request.url) && request.method === "GET")
+	mergeMiddleware(
+		handler => request$ => request$
+			.filter(request => /^\/api\/blog\/(.+)\/?$/.test(request.url) && request.method === "GET")
+			.mergeMap(() => handler(request$)),
+		timed("blog.morleydev.co.uk,api=GetBlogPostById")
+	)(request$ => request$
 		.map(request => request.url!.split("/").filter(t => t.length > 0)[2])
 		.mergeMap(request => database.getById(request))
-		.map(Ok);
+		.map(Ok));
 
 const onBlogApiCreateRequest: (handler: HttpRequestHandler) => HttpRequestHandler =
 	handler =>
@@ -74,33 +84,34 @@ const validateBlogApiCreateRequest = (handler: HttpRequestHandler): HttpRequestH
 			));
 
 
-const validateBlogApiUpdateRequest = (handler: HttpRequestHandler): HttpRequestHandler => request$ =>
-	request$
-		.mergeMap(request => bodyToJson<Partial<BlogPostDto>>(request))
-		.map(request => {
-			const canParseDate = (value: string): boolean => !isNaN(Date.parse(value));
-			const resultSet: [string, boolean, string][] = [
-				["id", request.id != null && (typeof request.id !== "string" || request.id.trim().length === 0), "id was empty"],
-				["title", request.title != null && (typeof request.title !== "string" || request.title.trim().length === 0), "title was empty"],
-				["markdown", request.markdown != null && (typeof request.markdown !== "string" || request.markdown.trim().length === 0), "markdown was empty"],
-				["posted", request.posted != null && (typeof request.posted !== "string" || !canParseDate(request.posted)), "posted was empty or invalid"],
-				["summary", request.summary != null && (typeof request.summary !== "string" || request.summary.trim().length === 0), "summary was empty"],
-				["tags", request.tags != null && (!Array.isArray(request.tags) || request.tags.some((tag: string) => typeof tag !== "string" || tag.trim().length === 0)), "tags were empty or invalid"]
-			];
-			return resultSet;
-		})
-		.mergeMap(resultSet => !resultSet.some(([_, invalid, __]) => invalid)
-			? handler(request$)
-			: Observable.of(
-				BadRequest(
-					resultSet
-						.filter(([_, invalid, __]) => invalid)
-						.reduce((state, curr) => ({ ...state, [curr[0]]: curr[2] }), {})
-				)
-			));
+const validateBlogApiUpdateRequest = (handler: HttpRequestHandler): HttpRequestHandler =>
+	request$ =>
+		request$
+			.mergeMap(request => bodyToJson<Partial<BlogPostDto>>(request))
+			.map(request => {
+				const canParseDate = (value: string): boolean => !isNaN(Date.parse(value));
+				const resultSet: [string, boolean, string][] = [
+					["id", request.id != null && (typeof request.id !== "string" || request.id.trim().length === 0), "id was empty"],
+					["title", request.title != null && (typeof request.title !== "string" || request.title.trim().length === 0), "title was empty"],
+					["markdown", request.markdown != null && (typeof request.markdown !== "string" || request.markdown.trim().length === 0), "markdown was empty"],
+					["posted", request.posted != null && (typeof request.posted !== "string" || !canParseDate(request.posted)), "posted was empty or invalid"],
+					["summary", request.summary != null && (typeof request.summary !== "string" || request.summary.trim().length === 0), "summary was empty"],
+					["tags", request.tags != null && (!Array.isArray(request.tags) || request.tags.some((tag: string) => typeof tag !== "string" || tag.trim().length === 0)), "tags were empty or invalid"]
+				];
+				return resultSet;
+			})
+			.mergeMap(resultSet => !resultSet.some(([_, invalid, __]) => invalid)
+				? handler(request$)
+				: Observable.of(
+					BadRequest(
+						resultSet
+							.filter(([_, invalid, __]) => invalid)
+							.reduce((state, curr) => ({ ...state, [curr[0]]: curr[2] }), {})
+					)
+				));
 
 const onBlogApiUpdateRequestWithAuthentication: HttpRequestHandler =
-	mergeMiddleware(onBlogApiUpdateRequest, withAuthentication, validateBlogApiUpdateRequest)(request$ =>
+	mergeMiddleware(onBlogApiUpdateRequest, timed("blog.morleydev.co.uk,api=UpdateBlogPost"), withAuthentication, validateBlogApiUpdateRequest)(request$ =>
 		request$
 			.mergeMap(request => bodyToJson<Partial<BlogPostDto>>(request).map(dto => ({ dto, id: request.url.split("/").filter(x => x.trim().length > 0)[2] })))
 			.mergeMap(request => database.getById(request.id).map(() => request))
@@ -115,7 +126,7 @@ const onBlogApiUpdateRequestWithAuthentication: HttpRequestHandler =
 	);
 
 const onBlogApiCreateRequestWithAuthentication: HttpRequestHandler =
-	mergeMiddleware(onBlogApiCreateRequest, withAuthentication, validateBlogApiCreateRequest)(request$ =>
+	mergeMiddleware(onBlogApiCreateRequest, timed("blog.morleydev.co.uk,api=CreateBlogPost"), withAuthentication, validateBlogApiCreateRequest)(request$ =>
 		request$
 			.mergeMap(request => bodyToJson<BlogPostDto>(request))
 			.mergeMap(post => database.getById(post.id).isEmpty()
