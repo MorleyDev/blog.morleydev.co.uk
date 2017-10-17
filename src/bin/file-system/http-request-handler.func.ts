@@ -20,8 +20,8 @@ export const onFileRequest: HttpRequestHandler = request$ => request$
 		status: 200,
 		body: data,
 		headers: Map({
-			"Content-Type": List(...getMimeType(filename), "charset=UTF-8"),
-			"Content-Length": List(data.length.toString())
+			"Content-Type": List([...getMimeType(filename), "charset=UTF-8"]),
+			"Content-Length": List([data.length.toString()])
 		})
 	}));
 

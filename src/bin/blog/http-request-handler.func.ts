@@ -1,9 +1,10 @@
 import { IncomingMessage } from "http";
-import { Observable } from "rxjs/Rx";
 import { Observer } from "rxjs/Observer";
+import { Observable } from "rxjs/Rx";
 
 import { withAuthentication, withoutAuthentication } from "../authentication/http-request-handler.func";
 import { HttpRequestHandler } from "../server/http-request-handler.type";
+import { BadRequest, Created, Ok } from "../server/respondWith";
 import { BlogPostDto } from "./blog.model";
 import { Sqlite3BlogRepository } from "./sqlite3-blog-repository";
 
@@ -23,14 +24,15 @@ const onBlogApiSearchRequest: HttpRequestHandler =
 	request$ => request$
 		.filter(request => /^\/api\/blog\/?$/.test(request.url!) && request.method === "GET")
 		.mergeMap(() => database.search().toArray())
-		.map(data => ({ status: 200, body: JSON.stringify({ data }) }));
+		.map(data => ({ data }))
+		.map(Ok);
 
 const onBlogApiGetByIdRequest: HttpRequestHandler =
 	request$ => request$
 		.filter(request => /^\/api\/blog\/(.+)\/?$/.test(request.url!) && request.method === "GET")
 		.map(request => request.url!.split("/").filter(t => t.length > 0)[2])
 		.mergeMap(request => database.getById(request))
-		.map(data => ({ status: 200, body: JSON.stringify({ data }) }));
+		.map(Ok);
 
 const onBlogApiCreateRequest: (handler: HttpRequestHandler) => HttpRequestHandler =
 	handler =>
@@ -46,45 +48,25 @@ const onBlogApiCreateRequestWithAuthentication: HttpRequestHandler = onBlogApiCr
 		.map(request => JSON.parse(request) as Partial<BlogPostDto>)
 		.mergeMap(request => {
 			if (typeof request.id !== "string" || request.id.length === 0) {
-				return Observable.of({
-					status: 400,
-					body: "Request id was not valid"
-				});
+				return Observable.of(BadRequest());
 			}
 			if (typeof request.title !== "string" || request.title.length === 0) {
-				return Observable.of({
-					status: 400,
-					body: "Title missing"
-				});
+				return Observable.of(BadRequest());
 			}
 			if (typeof request.markdown !== "string" || request.markdown.length === 0) {
-				return Observable.of({
-					status: 400,
-					body: "Request markdown was missing"
-				});
+				return Observable.of(BadRequest());
 			}
 			if (typeof request.posted !== "string") {
-				return Observable.of({
-					status: 400,
-					body: "Posted date was missing"
-				});
+				return Observable.of(BadRequest());
 			}
 			if (typeof request.summary !== "string" || request.summary.length === 0) {
-				return Observable.of({
-					status: 400,
-					body: "Summary was missing"
-				});
+				return Observable.of(BadRequest());
 			}
 			if (!Array.isArray(request.tags) || request.tags.some((tag: string) => typeof tag !== "string" || tag.length === 0)) {
-				return Observable.of({
-					status: 400,
-					body: "Tags missing"
-				});
+				return Observable.of(BadRequest());
 			}
-			return Observable.fromPromise(database.create(request as BlogPostDto).then(() => {
-				console.log("Created");
-				return {};
-			})).map(() => ({ status: 201 }));
+			const promise = database.create(request as BlogPostDto).then(() => Created(`/blog/${request.id}`));
+			return Observable.fromPromise(promise);
 		})
 ));
 
