@@ -1,6 +1,6 @@
 import { readFile } from "fs";
 import { basename } from "path";
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs/Rx";
 import { Observer } from "rxjs/Observer";
 
 export function render(filePath: string): Observable<{ filename: string; data: string }> {

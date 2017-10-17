@@ -1,5 +1,5 @@
 import { IncomingMessage } from "http";
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs/Rx";
 
 import { HttpResponse } from "./http-response.type";
 

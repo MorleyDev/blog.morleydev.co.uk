@@ -1,6 +1,7 @@
 import { createServer, IncomingMessage } from "http";
 import { List, Map } from "immutable";
-import { Observable, Observer } from "rxjs/Rx";
+import { Observable } from "rxjs/Rx";
+import { Observer }  from "rxjs/Observer";
 
 import { HttpResponse } from "./http-response.type";
 

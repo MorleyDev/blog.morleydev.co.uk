@@ -1,6 +1,5 @@
 import "core-js";
 
-import "rxjs";
 import { Observable } from "rxjs/Rx";
 
 import { onBlogApiRequest } from "./blog/http-request-handler.func";

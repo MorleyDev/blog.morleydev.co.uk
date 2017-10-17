@@ -1,4 +1,4 @@
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs/Rx";
 import { Observer } from "rxjs/Observer";
 import * as sqlite3 from "sqlite3";
 import { Database } from "sqlite3";
