@@ -88,10 +88,13 @@ export const loginEpic = (actions$: Observable<AnyAction>): Observable<AnyAction
 		.filter(action => action.type === RequestLoginAction)
 		.map((action: RequestLoginAction) => action.details.username === "admin" && action.details.password === "password")
 		.delay(1000)
-		.map(wasSuccess => wasSuccess ? ({ type: LoginSuccessAction, token: "YWRtaW46cGFzc3dvcmQ=" }) : ({ type: LoginFailureAction, reason: "Invalid username or password" })),
+		.map(wasSuccess => wasSuccess
+			? ({ type: LoginSuccessAction, token: "YWRtaW46cGFzc3dvcmQ=" })
+			: ({ type: LoginFailureAction, reason: "Invalid username or password" })
+		),
 
 	actions$
 		.filter(action => action.type === RequestLogoutAction)
 		.delay(750)
-		.mergeMap(() => [push("/") as AnyAction, ({ type: CompletedLogoutAction }) ])
+		.mergeMap(() => [push("/") as AnyAction, ({ type: CompletedLogoutAction })])
 );
