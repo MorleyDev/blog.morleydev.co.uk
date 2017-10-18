@@ -1,3 +1,4 @@
+import { logerr, loginfo } from "../logger/logger";
 import { HttpRequest } from "./http-request.type";
 import { HttpRequestHandler } from "./http-request-handler.type";
 import { createServer, IncomingMessage, Server } from "http";
@@ -11,7 +12,8 @@ import { Subscription } from "rxjs/Subscription";
 export function openServer(port: number, handler: HttpRequestHandler): Observable<Server> {
 	return Observable.create((observer: Observer<Server>) => {
 		const server = createServer((request, response) => {
-			console.log("Processing request", request.url, request.method);
+			loginfo("Processing request", { request_url: request.url, request_method: request.method });
+
 			const toArrayIfNot = <T>(v: T | T[]): T[] => Array.isArray(v) ? v : [v];
 			const headers = Map(Object.keys(request.headers)
 				.map(key => ({ [key]: List(toArrayIfNot(request.headers[key])) }))
@@ -68,16 +70,18 @@ export function openServer(port: number, handler: HttpRequestHandler): Observabl
 					}
 					response.end();
 
-					console.log("Response ", response.statusCode);
+					loginfo("Response", { response_statuscode: response.statusCode, request_method: request.method, request_url: request.url });
 				});
 			request.addListener("close", () => responseSub.unsubscribe());
 		});
 
-		server.listen(port, (err: Error) => {
-			if (err) {
-				return console.error(`ERROR! Error launching server on port ${port}`, err);
+		server.listen(port, (error: Error) => {
+			if (error) {
+				logerr(`ERROR! ${error.message} Error launching server`, { error, port });
+				return;
 			}
-			return console.log(`Server is listening on ${port}...`);
+			loginfo(`Server is listening...`, { port });
+			return;
 		});
 
 		observer.next(server);

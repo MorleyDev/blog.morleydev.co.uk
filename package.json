@@ -46,12 +46,10 @@
     "@types/socket.io": "^1.4.31",
     "@types/socket.io-client": "^1.4.31",
     "@types/sqlite3": "3.1.1",
+    "@types/winston": "^2.3.6",
     "config": "1.26.2",
     "core-js": "2.5.1",
     "immutable": "4.0.0-rc.7",
-    "koa": "2.3.0",
-    "koa-logger": "3.1.0",
-    "koa-route": "3.2.0",
     "material-ui": "0.19.4",
     "normalize.css": "7.0.0",
     "react": "16.0.0",
@@ -69,6 +67,7 @@
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3",
     "sqlite3": "3.1.13",
-    "typeface-roboto": "0.0.35"
+    "typeface-roboto": "0.0.35",
+    "winston": "^2.4.0"
   }
 }
