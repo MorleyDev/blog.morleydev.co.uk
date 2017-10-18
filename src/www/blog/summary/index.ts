@@ -20,12 +20,12 @@ export type BlogLoadSummariesAction = {
 };
 export const BlogLoadSummariesAction = "Blog@@LoadSummaries";
 
-export type BlogLoadedSummaryAction = {
+export type BlogLoadedSummariesAction = {
 	type: "Blog@@LoadSummaries@@Loaded",
-	summary: BlogPostSummary;
-	onLoad: (state: AppState, summary: BlogPostSummary) => AppState
+	summaries: BlogPostSummary[];
+	onLoad: (state: AppState, summary: BlogPostSummary[]) => AppState
 };
-export const BlogLoadedSummaryAction = "Blog@@LoadSummaries@@Loaded";
+export const BlogLoadedSummariesAction = "Blog@@LoadSummaries@@Loaded";
 
 export const loadBlogSummaries = (amount: number): Observable<BlogPostSummary> =>
 	fromPromise(fetch("/api/blog"))
@@ -40,16 +40,16 @@ export const loadBlogSummaries = (amount: number): Observable<BlogPostSummary> =
 export const blogSummaryEpic = (action$: Observable<AppAction>) =>
 	action$
 		.filter(action => action.type === "Blog@@LoadSummaries")
-		.switchMap((action: BlogLoadSummariesAction) => loadBlogSummaries(action.amount).map(post => ({
-			type: BlogLoadedSummaryAction,
-			summary: post,
+		.switchMap((action: BlogLoadSummariesAction) => loadBlogSummaries(action.amount).toArray().map(post => ({
+			type: BlogLoadedSummariesAction,
+			summaries: post,
 			onLoad: action.onLoad
 		})));
 
 export const summaryLoadingReducer = (state: AppState, action: AppAction): AppState => {
 	switch (action.type) {
-		case BlogLoadedSummaryAction:
-			return action.onLoad(state, action.summary);
+		case BlogLoadedSummariesAction:
+			return action.onLoad(state, action.summaries);
 	}
 	return state;
 };

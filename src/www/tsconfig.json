@@ -10,6 +10,7 @@
         "jsx": "react",
         "target": "es5",
         "rootDir": "./",
-        "outDir": "../../dist/www"
+        "outDir": "../../dist/www",
+        "allowSyntheticDefaultImports": true
     }
 }

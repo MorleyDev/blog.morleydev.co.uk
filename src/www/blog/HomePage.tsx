@@ -10,7 +10,7 @@ import { Observable } from "rxjs/Observable";
 import { AppAction } from "../app-action.model";
 import { AppState } from "../app-state.model";
 import { Routing } from "./routing";
-import { BlogLoadSummariesAction, BlogPostSummary } from "./summary/index";
+import { BlogLoadedSummariesAction, BlogLoadSummariesAction, BlogPostSummary } from "./summary/index";
 import { Markdown } from "../dom/Markdown";
 import { Summary } from "./summary/Summary";
 
@@ -63,14 +63,14 @@ export const homePageEpic = (action$: Observable<AnyAction>): Observable<AnyActi
 		.map(() => ({
 			type: BlogLoadSummariesAction,
 			amount: 10,
-			onLoad: (state: AppState, summary: BlogPostSummary) => {
+			onLoad: (state: AppState, summary: BlogPostSummary[]) => {
 				return ({
 					...state,
 					home: {
 						...state.home,
 						summaries: {
 							loading: false,
-							data: state.home.summaries.data.push(summary)
+							data: state.home.summaries.data.concat(summary)
 						}
 					}
 				});

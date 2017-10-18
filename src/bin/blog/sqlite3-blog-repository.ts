@@ -11,7 +11,7 @@ export class Sqlite3BlogRepository implements BlogRepository {
 	constructor() {
 		verbose();
 
-		const db = new Database("./local.db");
+		const db = new Database(":memory:");
 		this.database$ = Observable.fromPromise(new Promise((resolve, reject) => {
 			db.run(`CREATE TABLE blogposts (id TEXT, title TEXT, markdown TEXT, posted TEXT, summary TEXT, tags TEXT)`, err => err
 				? reject(err)

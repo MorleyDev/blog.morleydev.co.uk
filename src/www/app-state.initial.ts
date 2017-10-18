@@ -8,5 +8,11 @@ export const initialState: Partial<AppState> = {
 			data: List(),
 			loading: false
 		}
+	},
+	auth: {
+		authenticationToken: "",
+		currentState: "unauthenticated",
+		failureReason: "",
+		showDialog: false
 	}
 };
