@@ -25,6 +25,7 @@ export const NavBar = ({ path, navigate, login, logout, authState }: {
 							<MenuItem primaryText="Home" onTouchTap={() => navigate(Routing.HomePage)} />
 							<MenuItem primaryText="About" onTouchTap={() => navigate(Routing.AboutPage)} />
 							<LoginLogoutMenuItem state={authState} login={login} logout={logout} />
+							{authState === "signed-in" && <MenuItem primaryText="About" onTouchTap={() => navigate(Routing.AdminPage)} />}
 						</IconMenu>
 					</IfMobile>
 				}
@@ -37,8 +38,9 @@ export const NavBar = ({ path, navigate, login, logout, authState }: {
 			</AppBar>
 			<IfTabletOrLarger>
 				<Tabs value={path} onChange={navigate}>
-					<Tab label="Home" value={Routing.HomePage}></Tab>
-					<Tab label="About" value={Routing.AboutPage}></Tab>
+					<Tab label="Home" value={Routing.HomePage} />
+					<Tab label="About" value={Routing.AboutPage} />
+					{authState === "signed-in" && <Tab label="Admin" value={Routing.AdminPage} />}
 				</Tabs>
 			</IfTabletOrLarger>
 			<Snackbar open={authState === "signed-out"} message="Signed out" autoHideDuration={4000}></Snackbar>

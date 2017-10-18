@@ -45,14 +45,14 @@ export function openServer(port: number, handler: HttpRequestHandler): Observabl
 			const responseSub = handler(Observable.of({ body, method, url, headers }))
 				.defaultIfEmpty({ status: 404, body: JSON.stringify({ error: "NotFound", code: 404 }) })
 				.take(1)
-				.catch(err => {
-					console.error(err);
+				.catch(error => {
+					logerr(`Unexpected error occured: ${error.message}`, { error, request_method: request.method, request_url: request.url });
 					return Observable.of({
 						status: 500,
 						body: JSON.stringify({
 							error: "InternalServerError",
 							code: 500,
-							message: err
+							message: error
 						}),
 						headers: Map<string, List<string>>()
 					});

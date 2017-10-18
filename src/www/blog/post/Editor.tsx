@@ -24,7 +24,7 @@ export class Editor extends React.Component<Partial<BlogPost> & { onSave: (post:
 				<div className="col col-cell" style={{ width: "50%" }}>
 					<div>
 						<TextField
-							floatingLabelText="Id Slug"
+							floatingLabelText="Slug"
 							fullWidth
 							value={this.state.id}
 							onChange={(_, id) => this.setState(state => ({ ...state, id }))} />

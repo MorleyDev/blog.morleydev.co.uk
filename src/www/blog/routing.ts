@@ -1,4 +1,5 @@
 export const Routing = {
 	HomePage: "/",
-	AboutPage: "/about"
+	AboutPage: "/about",
+	AdminPage: "/admin"
 };

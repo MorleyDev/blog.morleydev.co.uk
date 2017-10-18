@@ -31,6 +31,7 @@ const tryGetRequestFilePath = (url: string): Observable<string> => timed$("blog.
 	const shallowFile = join(fileRoot, url);
 	stat(shallowFile, (err, shallowStats) => {
 		if (err) {
+			observer.next(join(fileRoot, "index.html"));
 			observer.complete();
 		} else if (shallowStats.isFile()) {
 			observer.next(shallowFile);
@@ -39,15 +40,18 @@ const tryGetRequestFilePath = (url: string): Observable<string> => timed$("blog.
 			const deepFile = join(shallowFile, "index.html");
 			stat(join(shallowFile, "index.html"), (err, deepState) => {
 				if (err) {
+					observer.next(join(fileRoot, "index.html"));
 					observer.complete();
 				} else if (deepState.isFile()) {
 					observer.next(deepFile);
 					observer.complete();
 				} else {
+					observer.next(join(fileRoot, "index.html"));
 					observer.complete();
 				}
 			});
 		} else {
+			observer.next(join(fileRoot, "index.html"));
 			observer.complete();
 		}
 	});

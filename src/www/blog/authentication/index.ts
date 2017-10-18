@@ -1,3 +1,5 @@
+import { push } from "react-router-redux";
+import { AnyAction } from "redux";
 import { Observable } from "rxjs/Observable";
 import { merge } from "rxjs/observable/merge";
 
@@ -81,15 +83,15 @@ export const loginReducer = (state: AppState, action: AppAction): AppState => {
 	}
 };
 
-export const loginEpic = (actions$: Observable<AppAction>): Observable<AppAction> => merge(
+export const loginEpic = (actions$: Observable<AnyAction>): Observable<AnyAction> => merge(
 	actions$
 		.filter(action => action.type === RequestLoginAction)
 		.map((action: RequestLoginAction) => action.details.username === "admin" && action.details.password === "password")
 		.delay(1000)
-		.map(wasSuccess => wasSuccess ? ({ type: LoginSuccessAction, token: "YWRtaW46cGFzc3dvcmQ=" }) as AppAction : ({ type: LoginFailureAction, reason: "Invalid username or password" }) as AppAction),
+		.map(wasSuccess => wasSuccess ? ({ type: LoginSuccessAction, token: "YWRtaW46cGFzc3dvcmQ=" }) : ({ type: LoginFailureAction, reason: "Invalid username or password" })),
 
 	actions$
 		.filter(action => action.type === RequestLogoutAction)
 		.delay(750)
-		.map(() => ({ type: CompletedLogoutAction } as AppAction))
+		.mergeMap(() => [push("/") as AnyAction, ({ type: CompletedLogoutAction }) ])
 );
