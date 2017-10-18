@@ -42,6 +42,8 @@
     "@types/react-router-dom": "4.0.8",
     "@types/react-router-redux": "5.0.8",
     "@types/react-tap-event-plugin": "0.0.30",
+    "@types/socket.io": "^1.4.31",
+    "@types/socket.io-client": "^1.4.31",
     "@types/sqlite3": "3.1.1",
     "config": "1.26.2",
     "core-js": "2.5.1",
@@ -62,6 +64,8 @@
     "redux": "3.7.2",
     "redux-observable": "0.16.0",
     "rxjs": "5.4.3",
+    "socket.io": "^2.0.3",
+    "socket.io-client": "^2.0.3",
     "sqlite3": "3.1.13",
     "typeface-roboto": "0.0.35"
   }

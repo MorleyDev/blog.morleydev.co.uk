@@ -1,6 +1,6 @@
 import { HttpRequest } from "./http-request.type";
 import { HttpRequestHandler } from "./http-request-handler.type";
-import { createServer, IncomingMessage } from "http";
+import { createServer, IncomingMessage, Server } from "http";
 import { List, Map } from "immutable";
 import { Observable } from "rxjs/Rx";
 import { Observer } from "rxjs/Observer";
@@ -8,8 +8,8 @@ import { Observer } from "rxjs/Observer";
 import { HttpResponse } from "./http-response.type";
 import { Subscription } from "rxjs/Subscription";
 
-export function openServer(port: number, handler: HttpRequestHandler): Observable<{}> {
-	return Observable.create((observer: Observer<HttpRequest>) => {
+export function openServer(port: number, handler: HttpRequestHandler): Observable<Server> {
+	return Observable.create((observer: Observer<Server>) => {
 		const server = createServer((request, response) => {
 			console.log("Processing request", request.url, request.method);
 			const toArrayIfNot = <T>(v: T | T[]): T[] => Array.isArray(v) ? v : [v];
@@ -79,6 +79,8 @@ export function openServer(port: number, handler: HttpRequestHandler): Observabl
 			}
 			return console.log(`Server is listening on ${port}...`);
 		});
+
+		observer.next(server);
 		return () => {
 			server.close();
 		};

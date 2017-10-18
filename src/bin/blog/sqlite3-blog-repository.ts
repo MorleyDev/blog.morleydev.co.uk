@@ -1,7 +1,6 @@
-import { Observable } from "rxjs/Rx";
+import { Observable } from "rxjs/Observable";
 import { Observer } from "rxjs/Observer";
-import * as sqlite3 from "sqlite3";
-import { Database } from "sqlite3";
+import { Database, verbose } from "sqlite3";
 
 import { BlogRepository } from "./blog-repository";
 import { BlogPost, BlogPostDto, BlogPostSummary } from "./blog.model";
@@ -10,9 +9,9 @@ export class Sqlite3BlogRepository implements BlogRepository {
 	private readonly database$: Observable<Database>;
 
 	constructor() {
-		sqlite3.verbose();
+		verbose();
 
-		const db = new Database(":memory:");
+		const db = new Database("./local.db");
 		this.database$ = Observable.fromPromise(new Promise((resolve, reject) => {
 			db.run(`CREATE TABLE blogposts (id TEXT, title TEXT, markdown TEXT, posted TEXT, summary TEXT, tags TEXT)`, err => err
 				? reject(err)

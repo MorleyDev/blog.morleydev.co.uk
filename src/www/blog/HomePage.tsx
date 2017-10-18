@@ -1,3 +1,4 @@
+import { Editor } from "./post/Editor";
 import { List } from "immutable";
 import { LinearProgress } from "material-ui";
 import * as React from "react";
@@ -21,11 +22,14 @@ export type HomePageState = {
 };
 
 export const HomePage = (homePage: HomePageState) => (
-	homePage.summaries.loading
-		? <LinearProgress mode="indeterminate" />
-		: <div>{homePage.summaries.data.map(summary => (
-			<Summary key={summary.id} summary={summary}></Summary>
-		))}</div>
+	<div>
+		{
+			homePage.summaries.loading
+				? <LinearProgress mode="indeterminate" />
+				: <div>{homePage.summaries.data.map(summary => (<Summary key={summary.id} summary={summary}></Summary>))}</div>
+		}
+		<Editor onCancel={() => { }} onSave={() => { }} />
+	</div>
 );
 
 export const HomePageView = connect((state: AppState) => ({ ...state.home }))(HomePage);

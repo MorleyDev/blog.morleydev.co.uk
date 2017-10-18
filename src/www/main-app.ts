@@ -1,3 +1,4 @@
+import { forClient } from "./sockets/forClient";
 import { connect } from "react-redux";
 import { Observable } from "rxjs/Observable";
 import { merge } from "rxjs/observable/merge";
@@ -13,7 +14,11 @@ import { summaryLoadingReducer } from "./blog/summary/index";
 export type Epic = (action$: Observable<AppAction>) => Observable<AppAction>;
 export const mainEpic: Epic = action$ => merge<AppAction>(
 	homePageEpic(action$),
-	blogSummaryEpic(action$)
+	blogSummaryEpic(action$),
+
+	action$
+		.do(({ type }) => forClient.emit("action", type))
+		.filter(() => false)
 );
 
 
