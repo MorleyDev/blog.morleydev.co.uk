@@ -19,24 +19,3 @@ export const bodyToJson = <T>(request: HttpRequest): Observable<T> =>
 		.map(body => JSON.parse(body) as T)
 		.catch(err => empty<T>());
 
-export const timed = (metric: string): ServerMiddleware =>
-	(handler: HttpRequestHandler): HttpRequestHandler =>
-		request$ => timed$(metric, handler(request$));
-
-export const timed$ = <T>(metric: string, observable: Observable<T>): Observable<T> => {
-	return observable
-		.mergeMap(request =>
-			Observable.using(
-				() => {
-					const startTime = Date.now();
-					return {
-						unsubscribe() {
-							const runTime = Date.now() - startTime;
-							console.log("TIMED", metric, `${runTime}ms`);
-						}
-					};
-				},
-				timer => observable
-			)
-		);
-};

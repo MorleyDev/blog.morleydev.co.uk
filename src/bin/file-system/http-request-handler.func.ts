@@ -1,4 +1,4 @@
-import { mergeMiddleware, timed$ } from "../server/utility";
+import { mergeMiddleware, } from "../server/utility";
 import { stat } from "fs";
 import { List, Map } from "immutable";
 import { join } from "path";
@@ -14,10 +14,8 @@ const getMimeType = (filename: string): string[] => mimeTypes["." + (filename.sp
 const fileRoot = join(__dirname, "../../../dist/www");
 
 export const onFileRequest: HttpRequestHandler =
-	request$ => request$
-		.map(request => request.url || "/")
-		.mergeMap(tryGetRequestFilePath)
-		.mergeMap(targetFile => timed$("blog.morleydev.co.uk,query=render", render(targetFile)))
+	request => tryGetRequestFilePath(request.url || "/")
+		.mergeMap(targetFile => render(targetFile))
 		.map(({ data, filename }) => ({
 			status: 200,
 			body: data,
@@ -27,7 +25,7 @@ export const onFileRequest: HttpRequestHandler =
 			})
 		}));
 
-const tryGetRequestFilePath = (url: string): Observable<string> => timed$("blog.morleydev.co.uk,query=tryfindfile", Observable.create((observer: Observer<string>) => {
+const tryGetRequestFilePath = (url: string): Observable<string> => Observable.create((observer: Observer<string>) => {
 	const shallowFile = join(fileRoot, url);
 	stat(shallowFile, (err, shallowStats) => {
 		if (err) {
@@ -55,4 +53,4 @@ const tryGetRequestFilePath = (url: string): Observable<string> => timed$("blog.
 			observer.complete();
 		}
 	});
-}));
+});

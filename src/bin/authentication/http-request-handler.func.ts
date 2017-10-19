@@ -16,8 +16,7 @@ const not = <T>(func: (input: T) => boolean): ((input: T) => boolean) => input =
 
 export const withAuthentication: (handler: HttpRequestHandler) => HttpRequestHandler =
 	handler =>
-		request$ =>
-			request$
-				.mergeMap(request => isAuthenticated(request)
-					? handler(request$)
-					: Observable.of(Unauthorised()));
+		request =>
+			isAuthenticated(request)
+				? handler(request)
+				: Observable.of(Unauthorised());

@@ -10,12 +10,15 @@ export type HttpEventingResponse = HttpResponse & {
 	emit?: { [key: string]: any }
 };
 
-export type SocketRequestHandler =
-	(request$: Observable<HttpRequest>, socket$: Observable<ObservableSocket>) => Observable<HttpEventingResponse>;
+export type SocketHttpRequestHandler =
+	(request: HttpRequest) => Observable<HttpEventingResponse>;
 
-export const openSocketServer = (port: number, handler: SocketRequestHandler): Observable<{ server: Server; sockets: ObservableSocket }> => {
+export const openSocketServer = (
+	port: number,
+	http: SocketHttpRequestHandler,
+): Observable<{ server: Server; sockets: ObservableSocket }> => {
 	const connection$ = new ReplaySubject<ObservableSocket>(1);
-	return openServer(port, request$ => handler(request$, connection$)
+	return openServer(port, request => http(request)
 		.mergeMap(response => {
 			const toEmit = response.emit;
 			return (toEmit != null)
